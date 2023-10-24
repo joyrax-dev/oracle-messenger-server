@@ -1,7 +1,14 @@
 import User from "../Database/Models/User.model"
-import { EmailIsBusy, IncorrectPassword, InvalidRole, LoginIsBusy, UserNotFoundById, UserNotFoundByLogin } from "../Errors"
+import { 
+    EmailIsBusy, 
+    IncorrectPassword, 
+    InvalidRole, 
+    LoginIsBusy, 
+    UserNotFoundById, 
+    UserNotFoundByLogin 
+} from "../Errors"
 
-class UserManager {
+export default class UserManager {
     /**
      * Creates a new user with the given login, email, password, and roleId.
      *
