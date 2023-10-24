@@ -3,6 +3,8 @@ import Chat from "../Database/Models/Chat.model"
 import Participant from "../Database/Models/Participant.model"
 
 import UserManager from "./UserManager"
+import ParticipantManager from "./ParticipantManager"
+import { ChatNotFoundById } from "../Errors"
 
 export default class ChatManager {
     /**
@@ -13,28 +15,32 @@ export default class ChatManager {
      * @return {Promise<Chat>} A promise that resolves to the created chat.
      */
     public static async createPrivateChat(userId1: number, userId2: number): Promise<Chat> {
-        const firstUser = await UserManager.getUserById(userId1)
-        const secondUser = await UserManager.getUserById(userId2)
-
-        const chat = await Chat.create({
-            name: 'Private Chat Between ' + firstUser.login + ' and ' + secondUser.login,
-            type: 'private'
-        })
-
-        await Participant.create({
-            userId: firstUser.id,
-            chatId: chat.id,
-            roleId: firstUser.roleId
-        })
-
-        await Participant.create({
-            userId: secondUser.id,
-            chatId: chat.id,
-            roleId: secondUser.roleId
-        })
-
-        // TODO: add error handling
-        return chat
+        try {
+            const firstUser = await UserManager.getUserById(userId1)
+            const secondUser = await UserManager.getUserById(userId2)
+    
+            const chat = await Chat.create({
+                name: 'Private Chat Between ' + firstUser.login + ' and ' + secondUser.login,
+                type: 'private'
+            })
+    
+            await Participant.create({
+                userId: firstUser.id,
+                chatId: chat.id,
+                roleId: firstUser.roleId
+            })
+    
+            await Participant.create({
+                userId: secondUser.id,
+                chatId: chat.id,
+                roleId: secondUser.roleId
+            })
+    
+            return chat
+        } catch (error) {
+            // Handle error here
+            throw error
+        }
     }
 
     /**
@@ -50,13 +56,7 @@ export default class ChatManager {
             type: 'group'
         })
 
-        for (const userId of usersId) {
-            await Participant.create({
-                userId,
-                chatId: chat.id,
-                roleId: 0
-            })
-        }
+        await ParticipantManager.createParticipants(chat.id, usersId)
 
         return chat
     }
@@ -68,15 +68,7 @@ export default class ChatManager {
      * @return {Promise<void>} A promise that resolves when the chat and participants are successfully deleted.
      */
     public static async deleteChat(chatId: number) {
-        const participants = await Participant.findAll({
-            where: {
-                chatId: chatId
-            }
-        })
-
-        for (const participant of participants) {
-            await participant.destroy()
-        }
+        await ParticipantManager.deleteAllParticipantByChatId(chatId)
 
         const chat = await ChatManager.getChatById(chatId)
         await chat.destroy()
@@ -90,6 +82,10 @@ export default class ChatManager {
      */
     public static async getChatById(chatId: number): Promise<Chat> {
         const chat = await Chat.findByPk(chatId)
+
+        if (!chat) {
+            throw new ChatNotFoundById('Chat not found by id')
+        }
 
         return chat
     }
