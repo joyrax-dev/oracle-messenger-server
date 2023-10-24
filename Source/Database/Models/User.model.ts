@@ -2,7 +2,7 @@ import { Model, DataTypes } from 'sequelize'
 import sequelize from '../sequelize'
 import Role from './Role.model'
 
-    class User extends Model {
+class User extends Model {
     public id!: number
     public login!: string
     public email!: string
