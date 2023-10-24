@@ -4,8 +4,9 @@ import Role from './Role.model'
 
     class User extends Model {
     public id!: number
-    public name!: string
+    public login!: string
     public email!: string
+    public emailConfrimed!: boolean
     public password!: string
     public roleId!: number // Добавляем поле для связи с Role
     public readonly role?: Role // Добавляем поле для доступа к Role модели
@@ -17,14 +18,19 @@ User.init({
             autoIncrement: true,
             primaryKey: true
         },
-        name: {
+        login: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true
+        },
+        emailConfrimed: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         },
         password: {
             type: DataTypes.STRING,
