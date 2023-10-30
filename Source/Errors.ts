@@ -5,3 +5,5 @@ export class UserNotFoundByLogin extends Error {}
 export class UserNotFoundById extends Error {}
 export class IncorrectPassword extends Error {}
 export class ChatNotFoundById extends Error {}
+export class ParticipantNotFoundByChatIdAndUserId extends Error {}
+export class NoParticipantsWereFound extends Error {}
