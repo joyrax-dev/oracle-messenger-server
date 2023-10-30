@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize'
 
-const sequelize  = new Sequelize('database', 'username', 'password', {
+const sequelize  = new Sequelize('oracle_messenger', 'postgres', '123', {
     host: 'localhost',
     dialect: 'postgres'
 })
