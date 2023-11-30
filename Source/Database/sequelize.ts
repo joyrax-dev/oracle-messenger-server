@@ -5,6 +5,7 @@ const sequelize  = new Sequelize('oracle_messenger', 'postgres', '123', {
     dialect: 'postgres'
 })
 
+
 export default sequelize
 
 /*

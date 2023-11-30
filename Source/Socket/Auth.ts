@@ -1,6 +1,6 @@
 import { Socket, Server } from 'socket.io'
-import { IncorrectPassword, UserNotFoundByLogin } from '../Errors'
-import { UserData, LoginData } from './Types'
+import { EmailIsBusy, IncorrectPassword, InvalidRole, LoginIsBusy, UserNotFoundByLogin } from '../Errors'
+import { UserData, LoginData, RegisterData } from './Types'
 import UserManager from '../Managers/UserManager'
 import User from '../Database/Models/User.model'
 
@@ -9,7 +9,7 @@ export default function Auth(socket: Socket, server: Server) {
     async function login(data: LoginData, callback: (msg: string, status: boolean) => void) {
         const { login, password } = data
     
-        if (socket.data.id) {
+        if (socket.data.isAuth) {
             callback('already logged in', false)
         }
     
@@ -31,7 +31,35 @@ export default function Auth(socket: Socket, server: Server) {
         }
     }
 
+    async function register(data: RegisterData, callback: (msg: string, status: boolean) => void) {
+        const { login, email, password } = data
+
+        if (socket.data.isAuth) {
+            callback('already logged in', false)
+        }
+
+        try {
+            console.log(data)
+            const user: User = await UserManager.createUser(login, email, password, 1)
+
+            callback('registered successfully', true)
+        }
+        catch (err) {
+            console.log(err)
+            if (err instanceof LoginIsBusy) {
+                callback('login is busy', false)
+            }
+            else if (err instanceof EmailIsBusy) {
+                callback('email is busy', false)
+            }
+            else if (err instanceof InvalidRole) {
+                callback('invalid role', false)
+            }
+        }
+    }
+
     return {
-        login
+        login,
+        register
     }
 }

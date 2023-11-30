@@ -12,24 +12,32 @@ export const config = {
 
 const httpServer = createServer()
 export const ioServer: Server = new Server(
-    httpServer
+    httpServer, 
+    {
+        cors: {
+            origin: "http://localhost:8081"
+        }
+    }
 )
 
-ioServer.use((socket: Socket, next: (err?: ExtendedError) => void) => {
-    next()
-})
-
-ioServer.on('connection', (socket: Socket) => {
-    console.log('User connected')
-    socket.data = {
-        isAuth: false,
-        user: null
-    } as UserData
-
-    const authHandlers = Auth(socket, ioServer)
-    socket.on('login', authHandlers.login)
-})
-
-httpServer.listen(config.port, config.hostname, () => {
-    console.info(`Server is running on ${config.type}://${config.hostname}:${config.port}`)
-})
+export function listen() {
+    ioServer.use((socket: Socket, next: (err?: ExtendedError) => void) => {
+        next()
+    })
+    
+    ioServer.on('connection', (socket: Socket) => {
+        console.log('User connected')
+        socket.data = {
+            isAuth: false,
+            user: null
+        } as UserData
+    
+        const authHandlers = Auth(socket, ioServer)
+        socket.on('login', authHandlers.login)
+        socket.on('register', authHandlers.register)
+    })
+    
+    httpServer.listen(config.port, config.hostname, () => {
+        console.info(`Server is running on ${config.type}://${config.hostname}:${config.port}`)
+    })
+}
