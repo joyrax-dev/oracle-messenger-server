@@ -35,6 +35,7 @@ export function listen() {
         const authHandlers = Auth(socket, ioServer)
         socket.on('login', authHandlers.login)
         socket.on('register', authHandlers.register)
+        socket.on('createRole', authHandlers.createRole)
     })
     
     httpServer.listen(config.port, config.hostname, () => {

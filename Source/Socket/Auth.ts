@@ -3,6 +3,7 @@ import { EmailIsBusy, IncorrectPassword, InvalidRole, LoginIsBusy, UserNotFoundB
 import { UserData, LoginData, RegisterData } from './Types'
 import UserManager from '../Managers/UserManager'
 import User from '../Database/Models/User.model'
+import Role from '../Database/Models/Role.model'
 
 export default function Auth(socket: Socket, server: Server) {
     
@@ -58,8 +59,19 @@ export default function Auth(socket: Socket, server: Server) {
         }
     }
 
+    async function createRole(name: string, callback: (msg: string, status: boolean) => void) {
+        try {
+            const role = await Role.create({ name })
+            callback('role successfully', true)
+        }
+        catch (err) {
+            callback('role already exists', false)
+        }
+    }
+
     return {
         login,
-        register
+        register,
+        createRole
     }
 }
