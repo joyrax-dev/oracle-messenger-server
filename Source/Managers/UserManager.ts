@@ -7,6 +7,7 @@ import {
     UserNotFoundById, 
     UserNotFoundByLogin 
 } from "../Errors"
+import sha256 from 'crypto-js/sha256'
 
 export default class UserManager {
     /**
@@ -89,6 +90,53 @@ export default class UserManager {
             }
 
             return user
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    public static async addReauthenticationToken(userId: number, token: string) {
+        try {
+            const user = await this.getUserById(userId)
+
+            user.reauthenticationTokens.push(token)
+            user.save()
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    public static async removeReauthenticationToken(userId: number, token: string) {
+        try {
+            const user = await this.getUserById(userId)
+
+            user.reauthenticationTokens = user.reauthenticationTokens.filter(t => t !== token)
+            user.save()
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    public static async checkReauthenticationToken(userId: number, token: string): Promise<boolean> {
+        try {
+            const user = await this.getUserById(userId)
+            
+            return user.reauthenticationTokens.includes(token)
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    public static async generateReauthenticationToken(userId: number): Promise<string> {
+        try {
+            const user = await this.getUserById(userId)
+            let token_raw = '' + userId + user.login + user.password + user.email + Date.now()
+
+            return sha256(token_raw).toString()
         }
         catch (error) {
             throw error

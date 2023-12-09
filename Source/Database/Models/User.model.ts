@@ -8,6 +8,7 @@ class User extends Model {
     public email!: string
     public emailConfrimed!: boolean
     public password!: string
+    public reauthenticationTokens!: string[]
     public roleId!: number // Добавляем поле для связи с Role
     public readonly role?: Role // Добавляем поле для доступа к Role модели
 }
@@ -35,6 +36,10 @@ User.init({
         password: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        reauthenticationTokens: {
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            defaultValue: []
         },
         roleId: {
             type: DataTypes.INTEGER,

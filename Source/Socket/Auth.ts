@@ -69,6 +69,11 @@ export default function Auth(socket: Socket, server: Server) {
         }
     }
 
+    async function newReauthToken(callback: (msg: string, status: boolean) => void) {
+        const token = socket.data.user.reauthenticationTokens[0]
+        callback(token, true)
+    }
+
     return {
         login,
         register,
