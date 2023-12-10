@@ -99,11 +99,22 @@ export default class UserManager {
     public static async addReauthenticationToken(userId: number, token: string) {
         try {
             const user = await this.getUserById(userId)
+            let tokens
+            
+            if (user.reauthenticationTokens === null) {
+                tokens = []
+            }
+            else {
+                tokens = Object.assign([], user.reauthenticationTokens)
+            }
 
-            user.reauthenticationTokens.push(token)
-            user.save()
+            tokens.push(token)
+            console.log(tokens)
+            
+            await user.update({ reauthenticationTokens: tokens })
         }
         catch (error) {
+            console.log(error)
             throw error
         }
     }
@@ -113,7 +124,7 @@ export default class UserManager {
             const user = await this.getUserById(userId)
 
             user.reauthenticationTokens = user.reauthenticationTokens.filter(t => t !== token)
-            user.save()
+            await user.update({ reauthenticationTokens: user.reauthenticationTokens })
         }
         catch (error) {
             throw error

@@ -36,6 +36,10 @@ export function listen() {
         socket.on('login', authHandlers.login)
         socket.on('register', authHandlers.register)
         socket.on('createRole', authHandlers.createRole)
+        socket.on('newReauthToken', authHandlers.newReauthToken)
+        socket.on('removeReauthToken', authHandlers.removeReauthToken)
+        socket.on('checkReauthToken', authHandlers.checkReauthToken)
+        socket.on('loginWithToken', authHandlers.loginWithToken)
     })
     
     httpServer.listen(config.port, config.hostname, () => {

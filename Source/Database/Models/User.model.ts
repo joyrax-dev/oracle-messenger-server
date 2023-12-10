@@ -38,8 +38,9 @@ User.init({
             allowNull: false
         },
         reauthenticationTokens: {
-            type: DataTypes.ARRAY(DataTypes.STRING),
-            defaultValue: []
+            type: DataTypes.ARRAY(DataTypes.TEXT),
+            defaultValue: [],
+            allowNull: true
         },
         roleId: {
             type: DataTypes.INTEGER,
