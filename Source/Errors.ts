@@ -39,3 +39,11 @@ export class AlreadyLoggedIn extends Error {
 export class RoleAlreadyExists extends Error {
     public static code: number = 13
 }
+
+export class YouAreNotLoggedIn extends Error {
+    public static code: number = 14
+}
+
+export class ParticipantsNotFoundByChatId extends Error {
+    public static code: number = 15
+}

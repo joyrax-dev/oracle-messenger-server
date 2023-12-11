@@ -44,3 +44,24 @@ export interface CreateRoleCallbackData {
     roleId: number,
     roleName: string
 }
+
+
+export interface AllChatsData {
+    chats: number[]
+}
+
+export interface GetChatInfoData {
+    userId: number,
+    chatId: number
+}
+
+export interface ChatInfoData {
+    chatId: number,
+    chatName: string,
+    chatParticipants: number[]
+}
+
+export interface NewPrivateChatData {
+    firstUserId: number,
+    secondUserId: number
+}

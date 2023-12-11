@@ -1,6 +1,7 @@
 import { Socket, Server } from 'socket.io'
 import { createServer } from 'http'
 import Auth from './Auth'
+import Chats from './Chats'
 import { UserData } from './Types'
 import { ExtendedError } from 'socket.io/dist/namespace'
 
@@ -37,6 +38,11 @@ export function listen() {
         socket.on('reLogin', authHandlers.reLogin)
         socket.on('register', authHandlers.register)
         socket.on('createRole', authHandlers.createRole)
+
+        const chatHandlers = Chats(socket, ioServer)
+        socket.on('newPrivateChat', chatHandlers.newPrivateChat)
+        socket.on('getChatsByUserId', chatHandlers.getChatsByUserId)
+        socket.on('getChatInfo', chatHandlers.getChatInfo)
     })
     
     httpServer.listen(config.port, config.hostname, () => {
