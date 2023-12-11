@@ -1,17 +1,33 @@
 import { Socket, Server } from 'socket.io'
-import { EmailIsBusy, IncorrectPassword, InvalidRole, LoginIsBusy, UserNotFoundByLogin } from '../Errors'
-import { UserData, LoginData, RegisterData } from './Types'
+import { 
+    AlreadyLoggedIn, 
+    EmailIsBusy, 
+    IncorrectPassword, 
+    InvalidRole, 
+    LoginIsBusy, 
+    ReLoginTokenNotFoundByUserIdAndToken, 
+    RoleAlreadyExists, 
+    UserNotFoundById, 
+    UserNotFoundByLogin } from '../Errors'
+import {
+    LoginData, 
+    RegisterData, 
+    ReLoginData, 
+    ReLoginCallbackData, 
+    LoginCallbackData, 
+    CreateRoleCallbackData,
+    CreateRoleData} from './Types'
 import UserManager from '../Managers/UserManager'
 import User from '../Database/Models/User.model'
 import Role from '../Database/Models/Role.model'
 
 export default function Auth(socket: Socket, server: Server) {
     
-    async function login(data: LoginData, callback: (userId: number, msg: string, status: boolean) => void) {
-        const { login, password } = data
+    async function login(data: LoginData, callback: (data: LoginCallbackData, code: number, status: boolean) => void) {
+        const { login, password, userAgent, isNextReLogin } = data  
     
         if (socket.data.isAuth) {
-            callback(socket.data.user.id, 'already logged in', false)
+            callback({ userId: socket.data.user.id, token: null, isNextReLogin: false }, AlreadyLoggedIn.code, false)
         }
     
         try {
@@ -20,120 +36,96 @@ export default function Auth(socket: Socket, server: Server) {
             socket.data.isAuth = true
             socket.data.user = user
 
-            callback(user.id, 'logged in', true)
+            if (isNextReLogin) {
+                const newToken = await UserManager.createReLoginToken(user.id, userAgent)
+
+                callback({ userId: user.id, token: newToken.token, isNextReLogin: true }, 0, true)
+            }
+            else {
+                callback({ userId: user.id, token: null, isNextReLogin: false }, 0, true)
+            }
         }
         catch (err) {
             if (err instanceof UserNotFoundByLogin) {
-                callback(null, 'user not found', false)
+                callback(null, UserNotFoundByLogin.code, false)
             }
             else if (err instanceof IncorrectPassword) {
-                callback(null, 'incorrect password', false)
+                callback(null, IncorrectPassword.code, false)
             }
         }
     }
 
-    async function register(data: RegisterData, callback: (msg: string, status: boolean) => void) {
+    async function reLogin(data: ReLoginData, callback: (data: ReLoginCallbackData, code: number, status: boolean) => void) {
+        try {
+            const { userId, token, userAgent, isNextReLogin } = data
+        
+            const currentToken = await UserManager.getReLoginTokenByUserIdAndToken(userId, token)
+
+            if (currentToken.userAgent === userAgent) {
+                socket.data.isAuth = true
+                socket.data.user = await UserManager.getUserById(userId)
+
+                await currentToken.destroy()
+                
+                if (isNextReLogin) {
+                    const newToken = await UserManager.createReLoginToken(userId, userAgent)
+
+                    callback({ userId: userId, token: newToken.token, isNextReLogin: true }, 0, true)
+                }
+                else {
+                    callback({ userId: userId, token: null, isNextReLogin: false }, 0, true)
+                }
+            }
+        }
+        catch (error) {
+            if (error instanceof ReLoginTokenNotFoundByUserIdAndToken) {
+                callback(null, ReLoginTokenNotFoundByUserIdAndToken.code, false)
+            }
+            else if (error instanceof UserNotFoundById) {
+                callback(null, UserNotFoundById.code, false)
+            }
+        }
+    }
+
+    async function register(data: RegisterData, callback: (code: number, status: boolean) => void) {
         const { login, email, password } = data
 
         if (socket.data.isAuth) {
-            callback('already logged in', false)
+            callback(AlreadyLoggedIn.code, false)
         }
 
         try {
             await UserManager.createUser(login, email, password, 1)
 
-            callback('registered successfully', true)
+            callback(0, true)
         }
         catch (err) {
             if (err instanceof LoginIsBusy) {
-                callback('login is busy', false)
+                callback(LoginIsBusy.code, false)
             }
             else if (err instanceof EmailIsBusy) {
-                callback('email is busy', false)
+                callback(EmailIsBusy.code, false)
             }
             else if (err instanceof InvalidRole) {
-                callback('invalid role', false)
+                callback(InvalidRole.code, false)
             }
         }
     }
 
-    async function createRole(name: string, callback: (msg: string, status: boolean) => void) {
+    async function createRole(data: CreateRoleData, callback: (data: CreateRoleCallbackData, code: number, status: boolean) => void) {
         try {
-            await Role.create({ name })
-            callback('role successfully', true)
+            const role = await Role.create({ name: data.name })
+            callback({ roleId: role.id, roleName: role.name }, 0, true)
         }
         catch (err) {
-            callback('role already exists', false)
-        }
-    }
-
-    async function newReauthToken(userId: number, callback: (token: string, msg: string, status: boolean) => void) {
-        try {
-            const token = await UserManager.generateReauthenticationToken(userId)
-            await UserManager.addReauthenticationToken(userId, token)
-            callback(token, 'new token successfully', true)
-        }
-        catch (err) {
-            callback('', err.message, false)
-        }
-    }
-
-    async function removeReauthToken(userId: number, token: string, callback: (msg: string, status: boolean) => void) {
-        try {
-            await UserManager.removeReauthenticationToken(userId, token)
-            callback('removed token successfully', true)
-        }
-        catch (err) {
-            callback(err.message, false)
-        }
-    }
-    async function checkReauthToken(userId: number, token: string, callback: (msg: string, status: boolean) => void) {
-        try {
-            const result = await UserManager.checkReauthenticationToken(userId, token)
-            callback(result ? 'valid token' : 'invalid token', result)
-        }
-        catch (err) {
-            callback(err.message, false)
-        }
-    }
-
-    async function loginWithToken(userId: number, token: string, callback: (userId: number, msg: string, status: boolean) => void) {
-        if (socket.data.isAuth) {
-            callback(socket.data.user.id, 'already logged in', false)
-        }
-    
-        try {
-            const user: User = await UserManager.getUserById(userId)
-
-            if (user.reauthenticationTokens.includes(token)) {
-                await UserManager.removeReauthenticationToken(userId, token)
-
-                socket.data.isAuth = true
-                socket.data.user = user
-
-                callback(user.id, 'logged in', true)
-            }
-            else {
-                callback(null, 'invalid token', false)
-            }
-        }
-        catch (err) {
-            if (err instanceof UserNotFoundByLogin) {
-                callback(null, 'user not found', false)
-            }
-            else if (err instanceof IncorrectPassword) {
-                callback(null, 'incorrect password', false)
-            }
+            callback(null, RoleAlreadyExists.code, false)
         }
     }
 
     return {
         login,
+        reLogin,
         register,
         createRole,
-        newReauthToken,
-        removeReauthToken,
-        checkReauthToken,
-        loginWithToken
     }
 }

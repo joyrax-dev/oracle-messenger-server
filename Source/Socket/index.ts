@@ -34,12 +34,9 @@ export function listen() {
     
         const authHandlers = Auth(socket, ioServer)
         socket.on('login', authHandlers.login)
+        socket.on('reLogin', authHandlers.reLogin)
         socket.on('register', authHandlers.register)
         socket.on('createRole', authHandlers.createRole)
-        socket.on('newReauthToken', authHandlers.newReauthToken)
-        socket.on('removeReauthToken', authHandlers.removeReauthToken)
-        socket.on('checkReauthToken', authHandlers.checkReauthToken)
-        socket.on('loginWithToken', authHandlers.loginWithToken)
     })
     
     httpServer.listen(config.port, config.hostname, () => {

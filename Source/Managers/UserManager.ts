@@ -1,9 +1,12 @@
 import User from "../Database/Models/User.model"
+import ReLoginToken from "../Database/Models/ReLoginToken.model"
 import { 
     EmailIsBusy, 
     IncorrectPassword, 
     InvalidRole, 
     LoginIsBusy, 
+    ReLoginTokenNotFoundById, 
+    ReLoginTokenNotFoundByUserIdAndToken, 
     UserNotFoundById, 
     UserNotFoundByLogin 
 } from "../Errors"
@@ -96,61 +99,54 @@ export default class UserManager {
         }
     }
 
-    public static async addReauthenticationToken(userId: number, token: string) {
-        try {
-            const user = await this.getUserById(userId)
-            let tokens
-            
-            if (user.reauthenticationTokens === null) {
-                tokens = []
-            }
-            else {
-                tokens = Object.assign([], user.reauthenticationTokens)
-            }
+    /**
+     * Creates a re-login token for the specified user.
+     *
+     * @param {number} userId - The ID of the user.
+     * @param {string} userAgent - The user agent string.
+     * @return {Promise<ReLoginToken>} A promise that resolves with the created re-login token.
+     */
+    public static async createReLoginToken(userId: number, userAgent: string): Promise<ReLoginToken> {
+        const user = await this.getUserById(userId)
 
-            tokens.push(token)
-            console.log(tokens)
-            
-            await user.update({ reauthenticationTokens: tokens })
-        }
-        catch (error) {
-            console.log(error)
-            throw error
-        }
+        let token_raw = '' + userId + user.login + user.password + userAgent + Date.now()
+        const token = sha256(token_raw).toString()
+
+        const loginToken = await ReLoginToken.create({ userId, token, userAgent })
+
+        return loginToken
     }
 
-    public static async removeReauthenticationToken(userId: number, token: string) {
-        try {
-            const user = await this.getUserById(userId)
+    /**
+     * Retrieves a re-login token by the user ID and token.
+     *
+     * @param {number} userId - The ID of the user.
+     * @param {string} token - The token to retrieve.
+     * @return {Promise<ReLoginToken>} The re-login token object.
+     */
+    public static async getReLoginTokenByUserIdAndToken(userId: number, token: string): Promise<ReLoginToken> {
+        const loginToken = await ReLoginToken.findOne({ where: { userId, token } })
 
-            user.reauthenticationTokens = user.reauthenticationTokens.filter(t => t !== token)
-            await user.update({ reauthenticationTokens: user.reauthenticationTokens })
-        }
-        catch (error) {
-            throw error
-        }
+        if (!loginToken) {
+            throw new ReLoginTokenNotFoundByUserIdAndToken()
+        } 
+        
+        return loginToken
     }
 
-    public static async checkReauthenticationToken(userId: number, token: string): Promise<boolean> {
-        try {
-            const user = await this.getUserById(userId)
-            
-            return user.reauthenticationTokens.includes(token)
-        }
-        catch (error) {
-            throw error
-        }
-    }
+    /**
+     * Retrieves a re-login token by its ID.
+     *
+     * @param {number} id - The ID of the re-login token.
+     * @return {Promise<ReLoginToken>} A promise that resolves to the re-login token with the specified ID.
+     */
+    public static async getReLoginTokenById(id: number): Promise<ReLoginToken> {
+        const loginToken = await ReLoginToken.findByPk(id)
 
-    public static async generateReauthenticationToken(userId: number): Promise<string> {
-        try {
-            const user = await this.getUserById(userId)
-            let token_raw = '' + userId + user.login + user.password + user.email + Date.now()
-
-            return sha256(token_raw).toString()
+        if (!loginToken) {
+            throw new ReLoginTokenNotFoundById()
         }
-        catch (error) {
-            throw error
-        }
+        
+        return loginToken
     }
 }

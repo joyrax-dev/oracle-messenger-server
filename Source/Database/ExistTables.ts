@@ -4,6 +4,7 @@ import MessageModel from './Models/Message.model'
 import ParticipantModel from './Models/Participant.model'
 import ReactionModel from './Models/Reaction.model'
 import RoleModel from './Models/Role.model'
+import ReLoginTokenModel from './Models/ReLoginToken.model'
 
 /**
  * Checks if the necessary tables exist and creates them if they don't.
@@ -77,7 +78,7 @@ export default function ExistTables() {
             console.log(`Error in table re-creation [table=${ReactionModel.tableName}] [error=${err}]`)
         })
     })
-
+    
     RoleModel.sync({force: false}).then(() => {
         console.log(`Table exist [table=${RoleModel.tableName}]`)
     }).catch(err => {
@@ -88,6 +89,19 @@ export default function ExistTables() {
             console.log(`Table recreated [table=${RoleModel.tableName}]`)
         }).catch(err => {
             console.log(`Error in table re-creation [table=${RoleModel.tableName}] [error=${err}]`)
+        })
+    })
+
+    ReLoginTokenModel.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${ReLoginTokenModel.tableName}]`)
+    }).catch(err => {
+        console.log(`Error while checking table [table=${ReLoginTokenModel.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${ReLoginTokenModel.tableName}]`)
+
+        ReLoginTokenModel.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${ReLoginTokenModel.tableName}]`)
+        }).catch(err => {
+            console.log(`Error in table re-creation [table=${ReLoginTokenModel.tableName}] [error=${err}]`)
         })
     })
 }
