@@ -65,3 +65,8 @@ export interface NewPrivateChatData {
     firstUserId: number,
     secondUserId: number
 }
+
+export interface JoinChatData {
+    userId: number,
+    chatId: number
+}

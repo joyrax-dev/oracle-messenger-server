@@ -2,8 +2,8 @@ import { Socket, Server } from 'socket.io'
 import ChatManager from '../Managers/ChatManager'
 import ParticipantManager from '../Managers/ParticipantManager'
 import Chat from '../Database/Models/Chat.model'
-import { AllChatsData, ChatInfoData, GetChatInfoData, NewPrivateChatData } from './Types'
-import { ParticipantNotFoundByChatIdAndUserId, YouAreNotLoggedIn } from '../Errors'
+import { AllChatsData, ChatInfoData, GetChatInfoData, JoinChatData, NewPrivateChatData } from './Types'
+import { ParticipantNotFoundByChatIdAndUserId, UserHasAlreadyJoinedTheChatRoom, YouAreNotLoggedIn } from '../Errors'
 import Participant from '../Database/Models/Participant.model'
 
 export default function Chats(socket: Socket, server: Server) {
@@ -85,9 +85,41 @@ export default function Chats(socket: Socket, server: Server) {
         }
     }
 
+    async function joinChat(data: JoinChatData, callback: (code: number, status: boolean) => void) {
+        try {
+            const { chatId, userId } = data
+
+            if (!socket.data.isAuth || socket.data.user.id !== userId) {
+                callback(YouAreNotLoggedIn.code, false)
+                return
+            }
+
+            await ParticipantManager.getParticipantByChatIdAndUserId(chatId, userId)
+
+            const roomName = 'chat:' + chatId
+
+            if(socket.rooms.has(roomName)) {
+                callback(UserHasAlreadyJoinedTheChatRoom.code, false)
+            }
+            else {
+                socket.join(roomName)
+                callback(0, true)
+            }
+        }
+        catch(error) {
+            if (error instanceof ParticipantNotFoundByChatIdAndUserId) {
+                callback(ParticipantNotFoundByChatIdAndUserId.code, false)
+            }
+            else {
+                callback(-1, false)
+            }
+        }
+    }
+
     return {
         newPrivateChat,
         getChatsByUserId,
-        getChatInfo
+        getChatInfo,
+        joinChat
     }
 }

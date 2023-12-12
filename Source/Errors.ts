@@ -47,3 +47,7 @@ export class YouAreNotLoggedIn extends Error {
 export class ParticipantsNotFoundByChatId extends Error {
     public static code: number = 15
 }
+
+export class UserHasAlreadyJoinedTheChatRoom extends Error {
+    public static code: number = 16
+}

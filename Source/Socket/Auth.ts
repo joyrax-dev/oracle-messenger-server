@@ -20,6 +20,7 @@ import {
 import UserManager from '../Managers/UserManager'
 import User from '../Database/Models/User.model'
 import Role from '../Database/Models/Role.model'
+import AuthUsersStore from './AuthUsersStore'
 
 export default function Auth(socket: Socket, server: Server) {
     
@@ -39,9 +40,17 @@ export default function Auth(socket: Socket, server: Server) {
             if (isNextReLogin) {
                 const newToken = await UserManager.createReLoginToken(user.id, userAgent)
 
+                AuthUsersStore.set({
+                    socketId: socket.id,
+                    userId: user.id
+                })
                 callback({ userId: user.id, token: newToken.token, isNextReLogin: true }, 0, true)
             }
             else {
+                AuthUsersStore.set({
+                    socketId: socket.id,
+                    userId: user.id
+                })
                 callback({ userId: user.id, token: null, isNextReLogin: false }, 0, true)
             }
         }
@@ -70,9 +79,17 @@ export default function Auth(socket: Socket, server: Server) {
                 if (isNextReLogin) {
                     const newToken = await UserManager.createReLoginToken(userId, userAgent)
 
+                    AuthUsersStore.set({
+                        socketId: socket.id,
+                        userId: userId
+                    })
                     callback({ userId: userId, token: newToken.token, isNextReLogin: true }, 0, true)
                 }
                 else {
+                    AuthUsersStore.set({
+                        socketId: socket.id,
+                        userId: userId
+                    })
                     callback({ userId: userId, token: null, isNextReLogin: false }, 0, true)
                 }
             }
