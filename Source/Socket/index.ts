@@ -8,6 +8,7 @@ import ParticipantManager from '../Managers/ParticipantManager'
 import MessageManager from '../Managers/MessageManager'
 import Message from '../Database/Models/Message.model'
 import AuthUsersStore from './AuthUsersStore'
+import ChatController from './ChatController'
 
 export const config = {
     hostname: 'localhost',
@@ -47,11 +48,13 @@ export function listen() {
         socket.on('register', authHandlers.register)
         socket.on('createRole', authHandlers.createRole)
 
-        const chatHandlers = Chats(socket, ioServer)
-        socket.on('newPrivateChat', chatHandlers.newPrivateChat)
-        socket.on('getChatsByUserId', chatHandlers.getChatsByUserId)
-        socket.on('getChatInfo', chatHandlers.getChatInfo)
-        socket.on('joinChat', chatHandlers.joinChat)
+        // const chatHandlers = Chats(socket, ioServer)
+        // socket.on('newPrivateChat', chatHandlers.newPrivateChat)
+        // socket.on('getChatsByUserId', chatHandlers.getChatsByUserId)
+        // socket.on('getChatInfo', chatHandlers.getChatInfo)
+        // socket.on('joinChat', chatHandlers.joinChat)
+
+        const chatController = new ChatController(ioServer, socket)
     })
 
     ioServer.of("/").adapter.on("join-room", async (room, id) => {
@@ -75,4 +78,6 @@ export function listen() {
     httpServer.listen(config.port, config.hostname, () => {
         console.info(`Server is running on ${config.type}://${config.hostname}:${config.port}`)
     })
+
+    
 }

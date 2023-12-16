@@ -2,15 +2,41 @@ import { Socket, Server } from 'socket.io'
 import ChatManager from '../Managers/ChatManager'
 import ParticipantManager from '../Managers/ParticipantManager'
 import Chat from '../Database/Models/Chat.model'
-import { AllChatsData, ChatInfoData, GetChatInfoData, JoinChatData, NewPrivateChatData } from './Types'
-import { ParticipantNotFoundByChatIdAndUserId, UserHasAlreadyJoinedTheChatRoom, YouAreNotLoggedIn } from '../Errors'
+import {
+     AllChatsData, 
+     ChatInfoData, 
+     GetChatInfoData, 
+     JoinChatData, 
+     NewPrivateChatData, 
+     SendMessageCallbackData, 
+     SendMessageData} from './Types'
+import { 
+    ParticipantNotFoundByChatIdAndUserId, 
+    TheUserHasNotJoinedTheChatRoom, 
+    UserHasAlreadyJoinedTheChatRoom, 
+    YouAreNotLoggedIn } from '../Errors'
 import Participant from '../Database/Models/Participant.model'
+import MessageManager from '../Managers/MessageManager';
+import Message from '../Database/Models/Message.model';
 
-export default function Chats(socket: Socket, server: Server) {
+export default class ChatController {
+    private server: Server
+    private socket: Socket
 
-    async function newPrivateChat(data: NewPrivateChatData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
+    constructor(server: Server, socket: Socket) {
+        this.server = server
+        this.socket = socket
+
+        this.socket.on('newPrivateChat', this.newPrivateChat.bind(this))
+        this.socket.on('getChatsByUserId', this.getChatsByUserId.bind(this))
+        this.socket.on('getChatInfo', this.getChatInfo.bind(this))
+        this.socket.on('joinChat', this.joinChat.bind(this))
+        this.socket.on('sendMessage', this.sendMessage.bind(this))
+    }
+
+    async newPrivateChat(data: NewPrivateChatData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
         try {
-            if (!socket.data.isAuth) {
+            if (!this.socket.data.isAuth) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
@@ -34,9 +60,9 @@ export default function Chats(socket: Socket, server: Server) {
             callback(null, -1, false)
         }
     }
-    async function getChatsByUserId(userId: number, callback: (data: AllChatsData, code: number, status: boolean) => void) {
+    async getChatsByUserId(userId: number, callback: (data: AllChatsData, code: number, status: boolean) => void) {
         try {
-            if (!socket.data.isAuth) {
+            if (!this.socket.data.isAuth) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
@@ -51,13 +77,14 @@ export default function Chats(socket: Socket, server: Server) {
             callback(data, 0, true)
         }
         catch (error) {
+            console.log(error)
             callback(null, -1, false)
         }
     }
 
-    async function getChatInfo(data: GetChatInfoData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
+    async getChatInfo(data: GetChatInfoData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
         try {
-            if (!socket.data.isAuth) {
+            if (!this.socket.data.isAuth) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
@@ -85,11 +112,11 @@ export default function Chats(socket: Socket, server: Server) {
         }
     }
 
-    async function joinChat(data: JoinChatData, callback: (code: number, status: boolean) => void) {
+    async joinChat(data: JoinChatData, callback: (code: number, status: boolean) => void) {
         try {
             const { chatId, userId } = data
 
-            if (!socket.data.isAuth || socket.data.user.id !== userId) {
+            if (!this.socket.data.isAuth || this.socket.data.user.id !== userId) {
                 callback(YouAreNotLoggedIn.code, false)
                 return
             }
@@ -98,11 +125,11 @@ export default function Chats(socket: Socket, server: Server) {
 
             const roomName = 'chat:' + chatId
 
-            if(socket.rooms.has(roomName)) {
+            if(this.socket.rooms.has(roomName)) {
                 callback(UserHasAlreadyJoinedTheChatRoom.code, true)
             }
             else {
-                socket.join(roomName)
+                this.socket.join(roomName)
                 callback(0, true)
             }
         }
@@ -116,10 +143,35 @@ export default function Chats(socket: Socket, server: Server) {
         }
     }
 
-    return {
-        newPrivateChat,
-        getChatsByUserId,
-        getChatInfo,
-        joinChat
+    async sendMessage(data: SendMessageData, callback: (data: SendMessageCallbackData, code: number, status: boolean) => void) {
+        try {
+            const { chatId, userId, text } = data
+
+            if (!this.socket.data.isAuth || this.socket.data.user.id !== userId) {
+                callback(null, YouAreNotLoggedIn.code, false)
+                return
+            }
+
+            if (!this.socket.rooms.has('chat:' + chatId)) {
+                callback(null, TheUserHasNotJoinedTheChatRoom.code, false)
+                return
+            }
+
+            const message: Message = await MessageManager.createMessage(chatId, userId, text)
+
+            console.log('send to room: ' + 'chat:' + chatId)
+            console.log('socket in rooms : ')
+            this.socket.rooms.forEach(room => console.log(room))
+            
+            this.socket.in('chat:' + chatId).emit('newMessage', {
+                chatId,
+                message
+            })
+            callback({ message, chatId }, 0, true)
+
+        }
+        catch(error) {
+            callback(null, -1, false)
+        }
     }
 }

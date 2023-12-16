@@ -70,3 +70,14 @@ export interface JoinChatData {
     userId: number,
     chatId: number
 }
+
+export interface SendMessageData {
+    chatId: number,
+    userId: number,
+    text: string
+}
+
+export interface SendMessageCallbackData {
+    message: any,
+    chatId: number,
+}

@@ -51,3 +51,7 @@ export class ParticipantsNotFoundByChatId extends Error {
 export class UserHasAlreadyJoinedTheChatRoom extends Error {
     public static code: number = 16
 }
+
+export class TheUserHasNotJoinedTheChatRoom extends Error {
+    public static code: number = 17
+}
