@@ -163,7 +163,7 @@ export default class ChatController {
             console.log('socket in rooms : ')
             this.socket.rooms.forEach(room => console.log(room))
             
-            this.socket.in('chat:' + chatId).emit('newMessage', {
+            this.socket.to('chat:' + chatId).emit('newMessage', {
                 chatId,
                 message
             })
