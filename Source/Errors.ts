@@ -55,3 +55,7 @@ export class UserHasAlreadyJoinedTheChatRoom extends Error {
 export class TheUserHasNotJoinedTheChatRoom extends Error {
     public static code: number = 17
 }
+
+export class YouAreNotJoinedTheChatRoom extends Error {
+    public static code: number = 18
+}

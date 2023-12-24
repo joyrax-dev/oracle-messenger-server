@@ -81,3 +81,18 @@ export interface SendMessageCallbackData {
     message: any,
     chatId: number,
 }
+
+export interface GetUserInfoData {
+    senderId: number,
+    targetId: number
+}
+
+export interface GetChatUsersData {
+    chatId: number,
+    senderId: number
+}
+
+export interface ChatUsersData {
+    chatId: number,
+    usersIds: number[]
+}

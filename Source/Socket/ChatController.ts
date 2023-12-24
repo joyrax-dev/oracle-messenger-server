@@ -5,7 +5,9 @@ import Chat from '../Database/Models/Chat.model'
 import {
      AllChatsData, 
      ChatInfoData, 
+     ChatUsersData, 
      GetChatInfoData, 
+     GetChatUsersData, 
      JoinChatData, 
      NewPrivateChatData, 
      SendMessageCallbackData, 
@@ -14,7 +16,8 @@ import {
     ParticipantNotFoundByChatIdAndUserId, 
     TheUserHasNotJoinedTheChatRoom, 
     UserHasAlreadyJoinedTheChatRoom, 
-    YouAreNotLoggedIn } from '../Errors'
+    YouAreNotLoggedIn, 
+    YouAreNotJoinedTheChatRoom} from '../Errors'
 import Participant from '../Database/Models/Participant.model'
 import MessageManager from '../Managers/MessageManager';
 import Message from '../Database/Models/Message.model';
@@ -32,6 +35,7 @@ export default class ChatController {
         this.socket.on('getChatInfo', this.getChatInfo.bind(this))
         this.socket.on('joinChat', this.joinChat.bind(this))
         this.socket.on('sendMessage', this.sendMessage.bind(this))
+        this.socket.on('getChatUsers', this.getChatUsers.bind(this))
     }
 
     async newPrivateChat(data: NewPrivateChatData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
@@ -169,6 +173,36 @@ export default class ChatController {
             })
             callback({ message, chatId }, 0, true)
 
+        }
+        catch(error) {
+            callback(null, -1, false)
+        }
+    }
+
+    async getChatUsers(data: GetChatUsersData, callback: (data: ChatUsersData, code: number, status: boolean) => void) {
+        try {
+            if (!this.socket.data.isAuth) {
+                callback(null, YouAreNotLoggedIn.code, false)
+                return
+            }
+
+            const chat: Chat = await ChatManager.getChatById(data.chatId)
+
+            const chatParticipants: Participant[] = await ParticipantManager.getAllParticipantsByChatId(chat.id)
+
+            const currentUser = chatParticipants.find(participant => participant.id === data.senderId)
+
+            if (!currentUser) {
+                callback(null, YouAreNotJoinedTheChatRoom.code, false)
+            }
+
+            const users: number[] = []
+
+            chatParticipants.filter(participant => participant.id !== data.senderId).forEach(participant => {
+                users.push(participant.userId)
+            })
+
+            callback({ chatId: chat.id, usersIds: users }, 0, true)
         }
         catch(error) {
             callback(null, -1, false)

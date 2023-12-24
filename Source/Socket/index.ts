@@ -9,6 +9,7 @@ import MessageManager from '../Managers/MessageManager'
 import Message from '../Database/Models/Message.model'
 import AuthUsersStore from './AuthUsersStore'
 import ChatController from './ChatController'
+import UserController from './UserController'
 
 export const config = {
     hostname: 'localhost',
@@ -55,6 +56,7 @@ export function listen() {
         // socket.on('joinChat', chatHandlers.joinChat)
 
         const chatController = new ChatController(ioServer, socket)
+        const userController = new UserController(ioServer, socket)
     })
 
     ioServer.of("/").adapter.on("join-room", async (room, id) => {
