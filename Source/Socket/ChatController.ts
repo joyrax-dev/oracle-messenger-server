@@ -190,19 +190,19 @@ export default class ChatController {
 
             const chatParticipants: Participant[] = await ParticipantManager.getAllParticipantsByChatId(chat.id)
 
-            const currentUser = chatParticipants.find(participant => participant.id === data.senderId)
+            const currentUser = chatParticipants.find(participant => participant.userId === data.senderId)
 
             if (!currentUser) {
                 callback(null, YouAreNotJoinedTheChatRoom.code, false)
             }
 
-            const users: number[] = []
+            const usersIds: number[] = []
 
-            chatParticipants.filter(participant => participant.id !== data.senderId).forEach(participant => {
-                users.push(participant.userId)
+            chatParticipants.forEach(participant => { //.filter(participant => participant.id === data.senderId)
+                usersIds.push(participant.userId)
             })
 
-            callback({ chatId: chat.id, usersIds: users }, 0, true)
+            callback({ chatId: chat.id, usersIds }, 0, true)
         }
         catch(error) {
             callback(null, -1, false)

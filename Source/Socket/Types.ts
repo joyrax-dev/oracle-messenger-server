@@ -87,6 +87,10 @@ export interface GetUserInfoData {
     targetId: number
 }
 
+export interface GetUserInfoCallbackData {
+    user: User
+}
+
 export interface GetChatUsersData {
     chatId: number,
     senderId: number

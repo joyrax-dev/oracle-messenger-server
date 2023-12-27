@@ -6,6 +6,7 @@ import {
      AllChatsData, 
      ChatInfoData, 
      GetChatInfoData, 
+     GetUserInfoCallbackData, 
      GetUserInfoData, 
      JoinChatData, 
      NewPrivateChatData, 
@@ -33,23 +34,23 @@ export default class UserController {
         this.socket.on('getUsersInfo', this.getUsersInfo.bind(this))
     }
 
-    async getUserInfo(data: GetUserInfoData, callback: (data: User, code: number, status: boolean) => void) {
+    async getUserInfo(data: GetUserInfoData, callback: (data: GetUserInfoCallbackData, code: number, status: boolean) => void) {
         try {
             const user: User = await UserManager.getUserById(data.targetId)
 
-            callback(user, 0, true)
+            callback({ user }, 0, true)
         }
         catch(error) {
             callback(null, -1, false)
         }
     }
 
-    async getUsersInfo(data: GetUserInfoData[], callback: (data: User[], code: number, status: boolean) => void) {
+    async getUsersInfo(data: GetUserInfoData[], callback: (data: GetUserInfoCallbackData[], code: number, status: boolean) => void) {
         try {
             const users = []
             for(const userData of data) {
                 const user: User = await UserManager.getUserById(userData.targetId)
-                users.push(user)
+                users.push({ user })
             }
             callback(users, 0, true)
         }

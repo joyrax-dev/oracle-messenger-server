@@ -10,6 +10,9 @@ import Message from '../Database/Models/Message.model'
 import AuthUsersStore from './AuthUsersStore'
 import ChatController from './ChatController'
 import UserController from './UserController'
+import Participant from '../Database/Models/Participant.model'
+import User from '../Database/Models/User.model'
+import UserManager from '../Managers/UserManager'
 
 export const config = {
     hostname: 'localhost',
@@ -67,9 +70,13 @@ export function listen() {
             const userId: number = AuthUsersStore.getBySocketId(id).userId
             const chatId: number = parseInt(room.split(":")[1])
 
+            // Проверка на присутствие участника в чате
             await ParticipantManager.getParticipantByChatIdAndUserId(chatId, userId)
+
+            // Получение сообщений
             const messages: Message[] = await MessageManager.getMessagesByChatId(chatId, 30)
 
+            // Отправка сообщений
             ioServer.to(id).emit("chatSetMessages", chatId, messages)
         }
         catch(error) {
