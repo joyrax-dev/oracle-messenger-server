@@ -9,6 +9,8 @@ import {
      GetChatInfoData, 
      GetChatUsersData, 
      JoinChatData, 
+     LoadMessagesCallbackData, 
+     LoadMessagesData, 
      NewPrivateChatData, 
      SendMessageCallbackData, 
      SendMessageData} from './Types'
@@ -36,6 +38,7 @@ export default class ChatController {
         this.socket.on('joinChat', this.joinChat.bind(this))
         this.socket.on('sendMessage', this.sendMessage.bind(this))
         this.socket.on('getChatUsers', this.getChatUsers.bind(this))
+        this.socket.on('loadMessages', this.loadMessages.bind(this))
     }
 
     async newPrivateChat(data: NewPrivateChatData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
@@ -203,6 +206,26 @@ export default class ChatController {
             })
 
             callback({ chatId: chat.id, usersIds }, 0, true)
+        }
+        catch(error) {
+            callback(null, -1, false)
+        }
+    }
+
+    async loadMessages(data: LoadMessagesData, callback: (data: LoadMessagesCallbackData, code: number, status: boolean) => void) {
+        try {
+            if (!this.socket.data.isAuth) {
+                callback(null, YouAreNotLoggedIn.code, false)
+                return
+            }
+
+            const { chatId, senderId, limit, offset } = data
+
+            await ParticipantManager.getParticipantByChatIdAndUserId(chatId, senderId)
+
+            const messages: Message[] = await MessageManager.getMessagesByChatId(chatId, limit, offset)
+
+            callback({ chatId, messages }, 0, true)
         }
         catch(error) {
             callback(null, -1, false)

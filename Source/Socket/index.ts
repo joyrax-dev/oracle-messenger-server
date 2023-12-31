@@ -1,7 +1,6 @@
 import { Socket, Server } from 'socket.io'
 import { createServer } from 'http'
 import Auth from './Auth'
-import Chats from './Chats'
 import { UserData } from './Types'
 import { ExtendedError } from 'socket.io/dist/namespace'
 import ParticipantManager from '../Managers/ParticipantManager'
@@ -10,9 +9,6 @@ import Message from '../Database/Models/Message.model'
 import AuthUsersStore from './AuthUsersStore'
 import ChatController from './ChatController'
 import UserController from './UserController'
-import Participant from '../Database/Models/Participant.model'
-import User from '../Database/Models/User.model'
-import UserManager from '../Managers/UserManager'
 
 export const config = {
     hostname: 'localhost',
@@ -74,7 +70,7 @@ export function listen() {
             await ParticipantManager.getParticipantByChatIdAndUserId(chatId, userId)
 
             // Получение сообщений
-            const messages: Message[] = await MessageManager.getMessagesByChatId(chatId, 30)
+            const messages: Message[] = await MessageManager.getMessagesByChatId(chatId, 40, 0)
 
             // Отправка сообщений
             ioServer.to(id).emit("chatSetMessages", chatId, messages)

@@ -18,14 +18,15 @@ export default class MessageManager {
         }
     }
 
-    public static async getMessagesByChatId(chatId: number, limit: number): Promise<Message[]> {
+    public static async getMessagesByChatId(chatId: number, limit: number, offset: number): Promise<Message[]> {
         try {
             const messages = await Message.findAll({
                 where: {
                     chatId
                 },
                 order: [['createdAt', 'DESC']],
-                limit
+                limit,
+                offset
             });
 
             return messages

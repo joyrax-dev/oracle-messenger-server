@@ -100,3 +100,15 @@ export interface ChatUsersData {
     chatId: number,
     usersIds: number[]
 }
+
+export interface LoadMessagesData {
+    senderId: number,
+    chatId: number,
+    limit: number,
+    offset: number
+}
+
+export interface LoadMessagesCallbackData {
+    chatId: number,
+    messages: any[]
+}
