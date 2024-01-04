@@ -83,14 +83,14 @@ export default function Auth(socket: Socket, server: Server) {
                         socketId: socket.id,
                         userId: userId
                     })
-                    callback({ userId: userId, token: newToken.token, isNextReLogin: true }, 0, true)
+                    callback({ userId: userId, token: newToken.token }, 0, true)
                 }
                 else {
                     AuthUsersStore.set({
                         socketId: socket.id,
                         userId: userId
                     })
-                    callback({ userId: userId, token: null, isNextReLogin: false }, 0, true)
+                    callback({ userId: userId, token: null }, 0, true)
                 }
             }
         }

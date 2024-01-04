@@ -32,8 +32,7 @@ export interface ReLoginData {
 }
 export interface ReLoginCallbackData {
     userId: number,
-    token: string,
-    isNextReLogin: boolean
+    token: string
 }
 
 export interface CreateRoleData {

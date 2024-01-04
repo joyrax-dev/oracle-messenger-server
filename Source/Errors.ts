@@ -19,6 +19,7 @@ export class IncorrectPassword extends Error {
 export class ChatNotFoundById extends Error {
     public static code: number = 7
 }
+
 export class ParticipantNotFoundByChatIdAndUserId extends Error {
     public static code: number = 8
 }
@@ -58,4 +59,10 @@ export class TheUserHasNotJoinedTheChatRoom extends Error {
 
 export class YouAreNotJoinedTheChatRoom extends Error {
     public static code: number = 18
+}
+export class PrivateChatAlreadyExists extends Error {
+    public static code: number = 19
+}
+export class MessageNotFoundById extends Error {
+    public static code: number = 20
 }
