@@ -1,23 +1,29 @@
 import User from "../Database/Models/User.model"
 import Chat from "../Database/Models/Chat.model"
 import Participant from "../Database/Models/Participant.model"
-
-import UserManager from "./UserManager"
 import ParticipantManager from "./ParticipantManager"
-import { ChatNotFoundById, PrivateChatAlreadyExists, UserNotFoundById } from "../Errors"
+import UserManager from "./UserManager"
+import { 
+    ChatNotFoundById, 
+    PrivateChatAlreadyExists, 
+    UserNotFoundById 
+} from "../Errors"
 
 export default class ChatManager {
+
     /**
      * Creates a private chat between two users.
      *
      * @param {number} userId1 - The ID of the first user.
      * @param {number} userId2 - The ID of the second user.
      * @return {Promise<Chat>} A promise that resolves to the created chat.
+     * @throws {PrivateChatAlreadyExists} If the private chat already exists.
+     * @throws {UserNotFoundById} If one of the users is not found.
      */
     public static async createPrivateChat(userId1: number, userId2: number): Promise<Chat> {
         let searchStatus = false
-
-        const firstParticipants = await Participant.findAll({
+        
+        const firstParticipants: Participant[] = await Participant.findAll({
             where: {
                 userId: userId1
             }
@@ -26,37 +32,30 @@ export default class ChatManager {
         for (const participant of firstParticipants) {
             const { chatId } = participant
 
-            const chat = await ChatManager.getChatById(chatId)
-            if (!chat) throw new ChatNotFoundById()
+            const chat: Chat = await ChatManager.getChatById(chatId)
 
-            if (chat.type === 'group') {
-                continue
-            }
+            if (!chat || chat.type === 'group') continue
 
-            const chatParticipants = await Participant.findAll({
+            const chatParticipants: Participant[] = await Participant.findAll({
                 where: {
                     chatId
                 }
             })
 
             for(const chatParticipant of chatParticipants) {
-                if (chatParticipant.userId === userId2) {
-                    searchStatus = true
-                }
+                if (chatParticipant.userId === userId2) searchStatus = true
             }
         }
 
-        if (searchStatus) {
-            throw new PrivateChatAlreadyExists()
-        }
+        if (searchStatus) throw new PrivateChatAlreadyExists()
         
-        const firstUser = await UserManager.getUserById(userId1)
-        const secondUser = await UserManager.getUserById(userId2)
+        const firstUser: User = await UserManager.getUserById(userId1)
+        const secondUser: User = await UserManager.getUserById(userId2)
 
         if (!firstUser) throw new UserNotFoundById()
         if (!secondUser) throw new UserNotFoundById()
 
-        const chat = await Chat.create({
+        const chat: Chat = await Chat.create({
             name: 'Private Chat Between ' + firstUser.login + ' and ' + secondUser.login,
             type: 'private'
         })
@@ -97,28 +96,27 @@ export default class ChatManager {
     /**
      * Deletes a chat and all associated participants.
      *
-     * @param {number} chatId - The ID of the chat to be deleted.
+     * @param {number} id - The ID of the chat to be deleted.
      * @return {Promise<void>} A promise that resolves when the chat and participants are successfully deleted.
      */
-    public static async deleteChat(chatId: number) {
-        await ParticipantManager.deleteAllParticipantByChatId(chatId)
+    public static async deleteChat(id: number): Promise<void> {
+        await ParticipantManager.deleteAllParticipantByChatId(id)
 
-        const chat = await ChatManager.getChatById(chatId)
+        const chat: Chat = await ChatManager.getChatById(id)
         await chat.destroy()
     }
 
     /**
      * Retrieves a chat by its ID.
      *
-     * @param {number} chatId - The ID of the chat.
+     * @param {number} id - The ID of the chat.
      * @return {Promise<Chat>} A promise that resolves to the chat object.
+     * @throws {ChatNotFoundById} If the chat is not found.
      */
-    public static async getChatById(chatId: number): Promise<Chat> {
-        const chat = await Chat.findByPk(chatId)
+    public static async getChatById(id: number): Promise<Chat> {
+        const chat: Chat = await Chat.findOne({ where: { id } })
 
-        if (!chat) {
-            throw new ChatNotFoundById()
-        }
+        if (!chat) throw new ChatNotFoundById()
 
         return chat
     }
@@ -130,16 +128,16 @@ export default class ChatManager {
      * @return {Promise<Chat[]>} - A promise that resolves to an array of Chat objects.
      */
     public static async getChatsByUser(userId: number): Promise<Chat[]> {
-        const participants = await Participant.findAll({
+        const participants: Participant[] = await Participant.findAll({
             where: {
-                userId: userId
+                userId
             }
         })
 
-        const chats = []
+        const chats: Chat[] = []
 
         for (const participant of participants) {
-            const chat = await ChatManager.getChatById(participant.chatId)
+            const chat: Chat = await ChatManager.getChatById(participant.chatId)
             chats.push(chat)
         }
 

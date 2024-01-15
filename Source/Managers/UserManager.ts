@@ -1,18 +1,15 @@
 import User from "../Database/Models/User.model"
-import ReLoginToken from "../Database/Models/ReLoginToken.model"
 import { 
     EmailIsBusy, 
     IncorrectPassword, 
     InvalidRole, 
     LoginIsBusy, 
-    ReLoginTokenNotFoundById, 
-    ReLoginTokenNotFoundByUserIdAndToken, 
     UserNotFoundById, 
     UserNotFoundByLogin 
 } from "../Errors"
-import sha256 from 'crypto-js/sha256'
 
 export default class UserManager {
+
     /**
      * Creates a new user with the given login, email, password, and roleId.
      *
@@ -27,7 +24,7 @@ export default class UserManager {
      */
     public static async createUser(login: string, email: string, password: string, roleId: number): Promise<User> {
         try {
-            const user = await User.create({ login, email, password, roleId })
+            const user: User = await User.create({ login, email, password, roleId })
 
             return user
         } 
@@ -42,7 +39,7 @@ export default class UserManager {
                 throw new InvalidRole()
             }
 
-            throw error // Пробрасываем другие ошибки дальше
+            throw error
         }
     }
 
@@ -54,7 +51,7 @@ export default class UserManager {
      * @throws {UserNotFoundByLogin} If the user is not found by login.
      */
     public static async getUserByLogin(login: string): Promise<User> {
-        const user = await User.findOne({ where: { login } })
+        const user: User = await User.findOne({ where: { login } })
 
         if (!user) {
             throw new UserNotFoundByLogin()
@@ -71,7 +68,7 @@ export default class UserManager {
      * @throws {UserNotFoundById} If the user is not found by id.
      */
     public static async getUserById(id: number): Promise<User> {
-        const user = await User.findByPk(id)
+        const user: User = await User.findOne({ where: { id } })
 
         if (!user) {
             throw new UserNotFoundById()
@@ -90,7 +87,7 @@ export default class UserManager {
      */
     public static async authenticateUser(login: string, password: string): Promise<User> {
         try {
-            const user = await UserManager.getUserByLogin(login)
+            const user: User = await UserManager.getUserByLogin(login)
 
             // TODO: Check confirmation email
             if (user.password !== password) {
@@ -102,58 +99,5 @@ export default class UserManager {
         catch (error) {
             throw error
         }
-    }
-
-    /**
-     * Creates a re-login token for the specified user.
-     *
-     * @param {number} userId - The ID of the user.
-     * @param {string} userAgent - The user agent string.
-     * @return {Promise<ReLoginToken>} A promise that resolves with the created re-login token.
-     */
-    public static async createReLoginToken(userId: number, userAgent: string): Promise<ReLoginToken> {
-        const user = await this.getUserById(userId)
-
-        let token_raw = '' + userId + user.login + user.password + userAgent + Date.now()
-        const token = sha256(token_raw).toString()
-
-        const loginToken = await ReLoginToken.create({ userId, token, userAgent })
-
-        return loginToken
-    }
-
-    /**
-     * Retrieves a re-login token by the user ID and token.
-     *
-     * @param {number} userId - The ID of the user.
-     * @param {string} token - The token to retrieve.
-     * @return {Promise<ReLoginToken>} The re-login token object.
-     * @throws {ReLoginTokenNotFoundByUserIdAndToken} If the not found relogin token by user id and token.
-     */
-    public static async getReLoginTokenByUserIdAndToken(userId: number, token: string): Promise<ReLoginToken> {
-        const loginToken = await ReLoginToken.findOne({ where: { userId, token } })
-
-        if (!loginToken) {
-            throw new ReLoginTokenNotFoundByUserIdAndToken()
-        } 
-        
-        return loginToken
-    }
-
-    /**
-     * Retrieves a re-login token by its ID.
-     *
-     * @param {number} id - The ID of the re-login token.
-     * @return {Promise<ReLoginToken>} A promise that resolves to the re-login token with the specified ID.
-     * @throws {ReLoginTokenNotFoundByUserIdAndToken} If the not found relogin token by id.
-     */
-    public static async getReLoginTokenById(id: number): Promise<ReLoginToken> {
-        const loginToken = await ReLoginToken.findByPk(id)
-
-        if (!loginToken) {
-            throw new ReLoginTokenNotFoundById()
-        }
-        
-        return loginToken
     }
 }

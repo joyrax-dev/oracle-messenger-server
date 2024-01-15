@@ -1,11 +1,16 @@
-import Chat from "../Database/Models/Chat.model"
 import Participant from "../Database/Models/Participant.model"
+import Chat from "../Database/Models/Chat.model"
 import User from "../Database/Models/User.model"
-import { NoParticipantsWereFound, ParticipantNotFoundByChatIdAndUserId, ParticipantsNotFoundByChatId } from "../Errors"
 import ChatManager from "./ChatManager"
 import UserManager from "./UserManager"
+import { 
+    NoParticipantsWereFound, 
+    ParticipantNotFoundByChatIdAndUserId, 
+    ParticipantsNotFoundByChatId 
+} from "../Errors"
 
 export default class ParticipantManager {
+
     /**
      * Creates a new participant in a chat.
      *
@@ -26,8 +31,8 @@ export default class ParticipantManager {
 
             return participant
         }
-        catch (err) {
-            throw err
+        catch (error) {
+            throw error
         }
     }
 
@@ -55,6 +60,7 @@ export default class ParticipantManager {
      *
      * @param {number} chatId - The chat id.
      * @return {Promise<void>} A promise that resolves when all participants are deleted.
+     * @throws {NoParticipantsWereFound} If no participants were found.
      */
     public static async deleteAllParticipantByChatId(chatId: number): Promise<void> {
         const participants: Participant[] = await Participant.findAll({
@@ -63,9 +69,7 @@ export default class ParticipantManager {
             }
         })
 
-        if (participants.length === 0) {
-            throw new NoParticipantsWereFound()
-        }
+        if (participants.length === 0) throw new NoParticipantsWereFound()
 
         for (const participant of participants) {
             await participant.destroy()
@@ -77,6 +81,7 @@ export default class ParticipantManager {
      *
      * @param {number} userId - The ID of the user.
      * @return {Promise<void>} A promise that resolves when all participants are deleted.
+     * @throws {NoParticipantsWereFound} If no participants were found.
      */
     public static async deleteAllParticipantByUserId(userId: number): Promise<void> {
         const participants: Participant[] = await Participant.findAll({
@@ -85,9 +90,7 @@ export default class ParticipantManager {
             }
         })
 
-        if (participants.length === 0) {
-            throw new NoParticipantsWereFound()
-        }
+        if (participants.length === 0) throw new NoParticipantsWereFound()
 
         for (const participant of participants) {
             await participant.destroy()
@@ -100,21 +103,18 @@ export default class ParticipantManager {
      * @param {number} chatId - The ID of the chat.
      * @param {number} userId - The ID of the user.
      * @return {Promise<void>} A promise that resolves when the participant is deleted.
+     * @throws {ParticipantNotFoundByChatIdAndUserId} If the participant is not found by chat ID and user ID.
      */
     public static async deleteParticipantByChatIdAndUserId(chatId: number, userId: number): Promise<void> {
-        const participant = await Participant.findOne({
+        const participant: Participant = await Participant.findOne({
             where: {
                 chatId,
                 userId
             }
         })
 
-        if (participant) {
-            participant.destroy()
-        }
-        else {
-            throw new ParticipantNotFoundByChatIdAndUserId()
-        }
+        if (participant) participant.destroy()
+        else throw new ParticipantNotFoundByChatIdAndUserId()
     }
 
     /**
@@ -123,32 +123,36 @@ export default class ParticipantManager {
      * @param {number} chatId - The ID of the chat.
      * @param {number} userId - The ID of the user.
      * @return {Promise<Participant>} The participant object if found, otherwise undefined.
+     * @throws {ParticipantNotFoundByChatIdAndUserId} If the participant is not found by chat ID and user ID.
      */
     public static async getParticipantByChatIdAndUserId(chatId: number, userId: number): Promise<Participant> {
-        const participant = await Participant.findOne({
+        const participant: Participant = await Participant.findOne({
             where: {
                 chatId,
                 userId
             }
         })
 
-        if (!participant) {
-            throw new ParticipantNotFoundByChatIdAndUserId()
-        }
+        if (!participant) throw new ParticipantNotFoundByChatIdAndUserId()
 
         return participant
     }
 
+    /**
+     * Retrieves all participants by chat ID.
+     *
+     * @param {number} chatId - The ID of the chat.
+     * @return {Promise<Participant[]>} An array of participants.
+     * @throws {ParticipantsNotFoundByChatId} If the participants are not found by chat ID.
+     */
     public static async getAllParticipantsByChatId(chatId: number): Promise<Participant[]> {
-        const participants = await Participant.findAll({
+        const participants: Participant[] = await Participant.findAll({
             where: {
                 chatId
             }
         })
 
-        if (!participants) {
-            throw new ParticipantsNotFoundByChatId()
-        }
+        if (!participants) throw new ParticipantsNotFoundByChatId()
 
         return participants
     }

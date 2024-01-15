@@ -66,3 +66,21 @@ export class PrivateChatAlreadyExists extends Error {
 export class MessageNotFoundById extends Error {
     public static code: number = 20
 }
+export class ReactionNotFoundById extends Error {
+    public static code: number = 21
+}
+export class ReactionNotFoundByUserIdAndMessageId extends Error {
+    public static code: number = 22
+}
+export class ReactionsNotFoundByMessageId extends Error {
+    public static code: number = 23
+}
+export class RoleNotFoundById extends Error {
+    public static code: number = 24
+}
+export class RolesNotFound extends Error {
+    public static code: number = 25
+}
+export class RoleOfThatNameExists extends Error {
+    public static code: number = 26
+}
