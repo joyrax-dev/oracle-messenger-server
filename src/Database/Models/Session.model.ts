@@ -28,7 +28,6 @@ Session.init({
         isLogin: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            unique: true,
             defaultValue: false
         }
     },

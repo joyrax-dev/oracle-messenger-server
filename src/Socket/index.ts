@@ -45,11 +45,15 @@ export function listen() {
         const roleController = new RoleController(ioServer, socket)
     })
 
-    ioServer.of("/").adapter.on("join-room", async (room, id) => {
+    ioServer.of("/").adapter.on("join-room", async (room: string, id: string) => {
         try {
             const session: Session = await Session.findOne({ where: { socketId: id } })
 
             if (session === null) {
+                return
+            }
+
+            if (!room.startsWith("chat:")) {
                 return
             }
 
