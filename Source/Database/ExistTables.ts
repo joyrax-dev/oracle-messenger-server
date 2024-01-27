@@ -1,10 +1,11 @@
-import ChatModel from './Models/Chat.model'
-import UserModel from './Models/User.model'
-import MessageModel from './Models/Message.model'
-import ParticipantModel from './Models/Participant.model'
-import ReactionModel from './Models/Reaction.model'
-import RoleModel from './Models/Role.model'
-import ReLoginTokenModel from './Models/ReLoginToken.model'
+import Chat from './Models/Chat.model'
+import User from './Models/User.model'
+import Message from './Models/Message.model'
+import Participant from './Models/Participant.model'
+import Reaction from './Models/Reaction.model'
+import Role from './Models/Role.model'
+import ReLoginToken from './Models/ReLoginToken.model'
+import Session from './Models/Session.model'
 
 /**
  * Checks if the necessary tables exist and creates them if they don't.
@@ -14,94 +15,107 @@ import ReLoginTokenModel from './Models/ReLoginToken.model'
 export default function ExistTables() { 
     // TODO: Automatic import and validation of all tables
     
-    ChatModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${ChatModel.tableName}]`)
+    Chat.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Chat.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${ChatModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${ChatModel.tableName}]`)
+        console.log(`Error while checking table [table=${Chat.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Chat.tableName}]`)
 
-        ChatModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${ChatModel.tableName}]`)
+        Chat.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Chat.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${ChatModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${Chat.tableName}] [error=${err}]`)
         })
     })
 
-    UserModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${UserModel.tableName}]`)
+    User.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${User.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${UserModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${UserModel.tableName}]`)
+        console.log(`Error while checking table [table=${User.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${User.tableName}]`)
 
-        UserModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${UserModel.tableName}]`)
+        User.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${User.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${UserModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${User.tableName}] [error=${err}]`)
         })
     })
 
-    MessageModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${MessageModel.tableName}]`)
+    Message.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Message.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${MessageModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${MessageModel.tableName}]`)
+        console.log(`Error while checking table [table=${Message.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Message.tableName}]`)
 
-        MessageModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${MessageModel.tableName}]`)
+        Message.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Message.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${MessageModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${Message.tableName}] [error=${err}]`)
         })
     })
 
-    ParticipantModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${ParticipantModel.tableName}]`)
+    Participant.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Participant.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${ParticipantModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${ParticipantModel.tableName}]`)
+        console.log(`Error while checking table [table=${Participant.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Participant.tableName}]`)
 
-        ParticipantModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${ParticipantModel.tableName}]`)
+        Participant.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Participant.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${ParticipantModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${Participant.tableName}] [error=${err}]`)
         })
     })
 
-    ReactionModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${ReactionModel.tableName}]`)
+    Reaction.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Reaction.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${ReactionModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${ReactionModel.tableName}]`)
+        console.log(`Error while checking table [table=${Reaction.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Reaction.tableName}]`)
 
-        ReactionModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${ReactionModel.tableName}]`)
+        Reaction.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Reaction.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${ReactionModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${Reaction.tableName}] [error=${err}]`)
         })
     })
     
-    RoleModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${RoleModel.tableName}]`)
+    Role.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Role.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${RoleModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${RoleModel.tableName}]`)
+        console.log(`Error while checking table [table=${Role.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Role.tableName}]`)
 
-        RoleModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${RoleModel.tableName}]`)
+        Role.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Role.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${RoleModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${Role.tableName}] [error=${err}]`)
         })
     })
 
-    ReLoginTokenModel.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${ReLoginTokenModel.tableName}]`)
+    ReLoginToken.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${ReLoginToken.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${ReLoginTokenModel.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${ReLoginTokenModel.tableName}]`)
+        console.log(`Error while checking table [table=${ReLoginToken.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${ReLoginToken.tableName}]`)
 
-        ReLoginTokenModel.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${ReLoginTokenModel.tableName}]`)
+        ReLoginToken.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${ReLoginToken.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${ReLoginTokenModel.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${ReLoginToken.tableName}] [error=${err}]`)
+        })
+    })
+
+    Session.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Session.tableName}]`)
+    }).catch(err => {
+        console.log(`Error while checking table [table=${Session.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Session.tableName}]`)
+
+        Session.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Session.tableName}]`)
+        }).catch(err => {
+            console.log(`Error in table re-creation [table=${Session.tableName}] [error=${err}]`)
         })
     })
 }

@@ -1,25 +1,15 @@
 import { Socket, Server } from 'socket.io'
-import ChatManager from '../Managers/ChatManager'
-import ParticipantManager from '../Managers/ParticipantManager'
-import Chat from '../Database/Models/Chat.model'
 import {
-     AllChatsData, 
-     ChatInfoData, 
-     GetChatInfoData, 
-     GetUserInfoCallbackData, 
-     GetUserInfoData, 
-     JoinChatData, 
-     NewPrivateChatData, 
-     SendMessageCallbackData, 
-     SendMessageData} from './Types'
+    GetUserInfoCallbackData, 
+    GetUserInfoData
+} from './Types'
 import { 
     ParticipantNotFoundByChatIdAndUserId, 
     TheUserHasNotJoinedTheChatRoom, 
     UserHasAlreadyJoinedTheChatRoom, 
-    YouAreNotLoggedIn } from '../Errors'
-import Participant from '../Database/Models/Participant.model'
-import UserManager from '../Managers/UserManager';
-import Message from '../Database/Models/Message.model';
+    YouAreNotLoggedIn
+} from '../Errors'
+import UserManager from '../Managers/UserManager'
 import User from '../Database/Models/User.model'
 
 export default class UserController {

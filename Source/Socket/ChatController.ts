@@ -13,16 +13,19 @@ import {
      LoadMessagesData, 
      NewPrivateChatData, 
      SendMessageCallbackData, 
-     SendMessageData} from './Types'
+     SendMessageData
+} from './Types'
 import { 
     ParticipantNotFoundByChatIdAndUserId, 
     TheUserHasNotJoinedTheChatRoom, 
     UserHasAlreadyJoinedTheChatRoom, 
     YouAreNotLoggedIn, 
-    YouAreNotJoinedTheChatRoom} from '../Errors'
+    YouAreNotJoinedTheChatRoom
+} from '../Errors'
 import Participant from '../Database/Models/Participant.model'
-import MessageManager from '../Managers/MessageManager';
-import Message from '../Database/Models/Message.model';
+import MessageManager from '../Managers/MessageManager'
+import Message from '../Database/Models/Message.model'
+import Session from '../Database/Models/Session.model'
 
 export default class ChatController {
     private server: Server
@@ -43,12 +46,14 @@ export default class ChatController {
 
     async newPrivateChat(data: NewPrivateChatData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
         try {
-            if (!this.socket.data.isAuth) {
+            const { firstUserId, secondUserId } = data
+
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
-
-            const { firstUserId, secondUserId } = data
 
             const newChat: Chat = await ChatManager.createPrivateChat(firstUserId, secondUserId)
 
@@ -69,12 +74,14 @@ export default class ChatController {
     }
     async getChatsByUserId(userId: number, callback: (data: AllChatsData, code: number, status: boolean) => void) {
         try {
-            if (!this.socket.data.isAuth) {
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
 
-            const chats: Chat[] = await ChatManager.getAllChatsByUserId(userId)
+            const chats: Chat[] = await ChatManager.getChatsByUser(userId)
 
             const data = { chats: [] }
             for (const chat of chats) {
@@ -84,14 +91,15 @@ export default class ChatController {
             callback(data, 0, true)
         }
         catch (error) {
-            console.log(error)
             callback(null, -1, false)
         }
     }
 
     async getChatInfo(data: GetChatInfoData, callback: (data: ChatInfoData, code: number, status: boolean) => void) {
         try {
-            if (!this.socket.data.isAuth) {
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
@@ -123,7 +131,9 @@ export default class ChatController {
         try {
             const { chatId, userId } = data
 
-            if (!this.socket.data.isAuth || this.socket.data.user.id !== userId) {
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(YouAreNotLoggedIn.code, false)
                 return
             }
@@ -154,7 +164,9 @@ export default class ChatController {
         try {
             const { chatId, userId, text } = data
 
-            if (!this.socket.data.isAuth || this.socket.data.user.id !== userId) {
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
@@ -184,7 +196,9 @@ export default class ChatController {
 
     async getChatUsers(data: GetChatUsersData, callback: (data: ChatUsersData, code: number, status: boolean) => void) {
         try {
-            if (!this.socket.data.isAuth) {
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
@@ -214,12 +228,14 @@ export default class ChatController {
 
     async loadMessages(data: LoadMessagesData, callback: (data: LoadMessagesCallbackData, code: number, status: boolean) => void) {
         try {
-            if (!this.socket.data.isAuth) {
+            const { chatId, senderId, limit, offset } = data
+
+            const session: Session = await Session.findOne({ where: { socketId: this.socket.id } })
+
+            if (!session.isLogin) {
                 callback(null, YouAreNotLoggedIn.code, false)
                 return
             }
-
-            const { chatId, senderId, limit, offset } = data
 
             await ParticipantManager.getParticipantByChatIdAndUserId(chatId, senderId)
 

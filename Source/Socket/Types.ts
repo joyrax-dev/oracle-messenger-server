@@ -30,10 +30,11 @@ export interface ReLoginData {
     userAgent: string,
     isNextReLogin: boolean
 }
-export interface ReLoginCallbackData {
-    userId: number,
-    token: string
-}
+// export interface ReLoginCallbackData {
+//     userId: number,
+//     token: string,
+//     isNextReLogin: boolean
+// }
 
 export interface CreateRoleData {
     name: string

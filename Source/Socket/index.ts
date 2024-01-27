@@ -1,14 +1,14 @@
 import { Socket, Server } from 'socket.io'
 import { createServer } from 'http'
-import Auth from './Auth'
-import { UserData } from './Types'
 import { ExtendedError } from 'socket.io/dist/namespace'
 import ParticipantManager from '../Managers/ParticipantManager'
 import MessageManager from '../Managers/MessageManager'
 import Message from '../Database/Models/Message.model'
-import AuthUsersStore from './AuthUsersStore'
 import ChatController from './ChatController'
 import UserController from './UserController'
+import Session from '../Database/Models/Session.model'
+import AuthController from './AuthController'
+import RoleController from './RoleController'
 
 export const config = {
     hostname: 'localhost',
@@ -31,39 +31,29 @@ export function listen() {
         next()
     })
 
-    ioServer.on('connection', (socket: Socket) => {
+    ioServer.on('connection', async (socket: Socket) => {
         console.log('User connected')
-        socket.data = {
-            isAuth: false,
-            user: null
-        } as UserData
+        await Session.create({ socketId: socket.id })
 
-        socket.on('disconnect', () => {
-            AuthUsersStore.delBySocketId(socket.id)
-        });
+        socket.on('disconnect', async () => {
+            await (await Session.findOne({ where: { socketId: socket.id } })).destroy()
+        })
     
-        const authHandlers = Auth(socket, ioServer)
-        socket.on('login', authHandlers.login)
-        socket.on('reLogin', authHandlers.reLogin)
-        socket.on('register', authHandlers.register)
-        socket.on('createRole', authHandlers.createRole)
-
-        // const chatHandlers = Chats(socket, ioServer)
-        // socket.on('newPrivateChat', chatHandlers.newPrivateChat)
-        // socket.on('getChatsByUserId', chatHandlers.getChatsByUserId)
-        // socket.on('getChatInfo', chatHandlers.getChatInfo)
-        // socket.on('joinChat', chatHandlers.joinChat)
-
+        const authController = new AuthController(ioServer, socket)
         const chatController = new ChatController(ioServer, socket)
         const userController = new UserController(ioServer, socket)
+        const roleController = new RoleController(ioServer, socket)
     })
 
     ioServer.of("/").adapter.on("join-room", async (room, id) => {
         try {
-            if (AuthUsersStore.getBySocketId(id) === null) {
+            const session: Session = await Session.findOne({ where: { socketId: id } })
+
+            if (session === null) {
                 return
             }
-            const userId: number = AuthUsersStore.getBySocketId(id).userId
+
+            const userId: number = session.userId
             const chatId: number = parseInt(room.split(":")[1])
 
             // Проверка на присутствие участника в чате
@@ -83,6 +73,4 @@ export function listen() {
     httpServer.listen(config.port, config.hostname, () => {
         console.info(`Server is running on ${config.type}://${config.hostname}:${config.port}`)
     })
-
-    
 }
