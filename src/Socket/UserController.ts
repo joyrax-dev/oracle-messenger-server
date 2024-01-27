@@ -11,14 +11,11 @@ import {
 } from '../Errors'
 import UserManager from '../Managers/UserManager'
 import User from '../Database/Models/User.model'
+import Controller from './Controller'
 
-export default class UserController {
-    private server: Server
-    private socket: Socket
-
+export default class UserController extends Controller {
     constructor(server: Server, socket: Socket) {
-        this.server = server
-        this.socket = socket
+        super(server, socket)
 
         this.socket.on('getUserInfo', this.getUserInfo.bind(this))
         this.socket.on('getUsersInfo', this.getUsersInfo.bind(this))

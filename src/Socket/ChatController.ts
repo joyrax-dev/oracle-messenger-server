@@ -26,15 +26,12 @@ import Participant from '../Database/Models/Participant.model'
 import MessageManager from '../Managers/MessageManager'
 import Message from '../Database/Models/Message.model'
 import Session from '../Database/Models/Session.model'
+import Controller from './Controller'
 
-export default class ChatController {
-    private server: Server
-    private socket: Socket
-
+export default class ChatController extends Controller {
     constructor(server: Server, socket: Socket) {
-        this.server = server
-        this.socket = socket
-
+        super(server, socket)
+        
         this.socket.on('newPrivateChat', this.newPrivateChat.bind(this))
         this.socket.on('getChatsByUserId', this.getChatsByUserId.bind(this))
         this.socket.on('getChatInfo', this.getChatInfo.bind(this))
