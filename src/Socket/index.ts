@@ -32,7 +32,7 @@ export function listen() {
     })
 
     ioServer.on('connection', async (socket: Socket) => {
-        console.log('User connected')
+        console.log('Client connected:', socket.id)
         await Session.create({ socketId: socket.id })
 
         socket.on('disconnect', async () => {
@@ -49,13 +49,9 @@ export function listen() {
         try {
             const session: Session = await Session.findOne({ where: { socketId: id } })
 
-            if (session === null) {
-                return
-            }
-
-            if (!room.startsWith("chat:")) {
-                return
-            }
+            if (session === null) return
+            if (!room.startsWith("chat:")) return
+            if (!session.isLogin) return
 
             const userId: number = session.userId
             const chatId: number = parseInt(room.split(":")[1])

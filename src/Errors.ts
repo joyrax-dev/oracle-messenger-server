@@ -84,3 +84,6 @@ export class RolesNotFound extends Error {
 export class RoleOfThatNameExists extends Error {
     public static code: number = 26
 }
+export class InsufficientPermissions extends Error {
+    public static code: number = 27
+}

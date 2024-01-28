@@ -1,3 +1,4 @@
+import Role from "../Database/Models/Role.model"
 import User from "../Database/Models/User.model"
 
 export interface UserData {
@@ -111,4 +112,17 @@ export interface LoadMessagesData {
 export interface LoadMessagesCallbackData {
     chatId: number,
     messages: any[]
+}
+
+export interface RolesData {
+    roles: Role[]
+}
+
+export interface DeleteRoleData {
+    roleId: number
+}
+
+export interface UpdateRoleData {
+    roleId: number,
+    roleName: string
 }
