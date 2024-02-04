@@ -38,7 +38,7 @@ export function listen() {
         socket.on('disconnect', async () => {
             await (await Session.findOne({ where: { socketId: socket.id } })).destroy()
         })
-    
+
         const authController = new AuthController(ioServer, socket)
         const chatController = new ChatController(ioServer, socket)
         const userController = new UserController(ioServer, socket)
