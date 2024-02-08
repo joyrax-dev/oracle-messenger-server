@@ -1,4 +1,6 @@
 import { Sequelize } from 'sequelize'
+import { cwd } from 'node:process'
+import { join } from 'path'
 
 const sequelize = new Sequelize('oracle_messenger', 'postgres', '123', {
     host: 'localhost',
@@ -6,7 +8,13 @@ const sequelize = new Sequelize('oracle_messenger', 'postgres', '123', {
     logging: false
 })
 
+export const localStore = new Sequelize({
+    dialect: 'sqlite',
+    storage: join(cwd(), 'localStore.db')
+})
+
 export const memoryStore = new Sequelize('sqlite::memory:', { logging: false })
+
 
 export default sequelize
 

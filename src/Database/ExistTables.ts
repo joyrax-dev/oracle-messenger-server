@@ -6,6 +6,7 @@ import Reaction from './Models/Reaction.model'
 import Role from './Models/Role.model'
 import ReLoginToken from './Models/ReLoginToken.model'
 import Session from './Models/Session.model'
+import ActionAccess from './Models/ActionAccess.model'
 
 /**
  * Checks if the necessary tables exist and creates them if they don't.
@@ -105,7 +106,7 @@ export default function ExistTables() {
             console.log(`Error in table re-creation [table=${ReLoginToken.tableName}] [error=${err}]`)
         })
     })
-
+    
     Session.sync({force: false}).then(() => {
         console.log(`Table exist [table=${Session.tableName}]`)
     }).catch(err => {
@@ -116,6 +117,19 @@ export default function ExistTables() {
             console.log(`Table recreated [table=${Session.tableName}]`)
         }).catch(err => {
             console.log(`Error in table re-creation [table=${Session.tableName}] [error=${err}]`)
+        })
+    })
+
+    ActionAccess.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${ActionAccess.tableName}]`)
+    }).catch(err => {
+        console.log(`Error while checking table [table=${ActionAccess.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${ActionAccess.tableName}]`)
+
+        ActionAccess.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${ActionAccess.tableName}]`)
+        }).catch(err => {
+            console.log(`Error in table re-creation [table=${ActionAccess.tableName}] [error=${err}]`)
         })
     })
 }

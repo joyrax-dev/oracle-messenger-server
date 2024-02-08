@@ -135,3 +135,5 @@ package-lock.json
 Build/
 .vscode
 .vs
+
+*.db
