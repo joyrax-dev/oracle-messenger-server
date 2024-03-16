@@ -3,10 +3,9 @@ import User from './Models/User.model'
 import Message from './Models/Message.model'
 import Participant from './Models/Participant.model'
 import Reaction from './Models/Reaction.model'
-import Role from './Models/Role.model'
+import Permission from './Models/Permission.model'
 import ReLoginToken from './Models/ReLoginToken.model'
 import Session from './Models/Session.model'
-import ActionAccess from './Models/ActionAccess.model'
 
 /**
  * Checks if the necessary tables exist and creates them if they don't.
@@ -81,16 +80,16 @@ export default function ExistTables() {
         })
     })
     
-    Role.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${Role.tableName}]`)
+    Permission.sync({force: false}).then(() => {
+        console.log(`Table exist [table=${Permission.tableName}]`)
     }).catch(err => {
-        console.log(`Error while checking table [table=${Role.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${Role.tableName}]`)
+        console.log(`Error while checking table [table=${Permission.tableName}] [error=${err}]`)
+        console.log(`I'm trying to recreate the table [table=${Permission.tableName}]`)
 
-        Role.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${Role.tableName}]`)
+        Permission.sync({force: true}).then(() => {
+            console.log(`Table recreated [table=${Permission.tableName}]`)
         }).catch(err => {
-            console.log(`Error in table re-creation [table=${Role.tableName}] [error=${err}]`)
+            console.log(`Error in table re-creation [table=${Permission.tableName}] [error=${err}]`)
         })
     })
 
@@ -117,19 +116,6 @@ export default function ExistTables() {
             console.log(`Table recreated [table=${Session.tableName}]`)
         }).catch(err => {
             console.log(`Error in table re-creation [table=${Session.tableName}] [error=${err}]`)
-        })
-    })
-
-    ActionAccess.sync({force: false}).then(() => {
-        console.log(`Table exist [table=${ActionAccess.tableName}]`)
-    }).catch(err => {
-        console.log(`Error while checking table [table=${ActionAccess.tableName}] [error=${err}]`)
-        console.log(`I'm trying to recreate the table [table=${ActionAccess.tableName}]`)
-
-        ActionAccess.sync({force: true}).then(() => {
-            console.log(`Table recreated [table=${ActionAccess.tableName}]`)
-        }).catch(err => {
-            console.log(`Error in table re-creation [table=${ActionAccess.tableName}] [error=${err}]`)
         })
     })
 }

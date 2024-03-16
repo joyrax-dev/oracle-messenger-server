@@ -87,23 +87,3 @@ export class RoleOfThatNameExists extends Error {
 export class InsufficientPermissions extends Error {
     public static code: number = 27
 }
-
-export class ThereRoleInThisAction extends Error {
-    public static code: number = 28
-}
-
-export class ActionAccessNotFoundById extends Error {
-    public static code: number = 29
-}
-
-export class ActionAccessNotFoundByAction extends Error {
-    public static code: number = 30
-}
-
-export class ActionAccessNotFoundByRoleId extends Error {
-    public static code: number = 31
-}
-
-export class ActionAccessNotFoundByRoleIdAndAction extends Error {
-    public static code: number = 32
-}

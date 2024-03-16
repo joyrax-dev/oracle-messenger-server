@@ -8,7 +8,6 @@ import ChatController from './ChatController'
 import UserController from './UserController'
 import Session from '../Database/Models/Session.model'
 import AuthController from './AuthController'
-import RoleController from './RoleController'
 
 export const config = {
     hostname: 'localhost',
@@ -42,7 +41,6 @@ export function listen() {
         const authController = new AuthController(ioServer, socket)
         const chatController = new ChatController(ioServer, socket)
         const userController = new UserController(ioServer, socket)
-        const roleController = new RoleController(ioServer, socket)
     })
 
     ioServer.of("/").adapter.on("join-room", async (room: string, id: string) => {

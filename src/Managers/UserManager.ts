@@ -22,9 +22,9 @@ export default class UserManager {
      * @throws {EmailIsBusy} If the email is already in use.
      * @throws {InvalidRole} If the invalid role.
      */
-    public static async createUser(login: string, email: string, password: string, roleId: number): Promise<User> {
+    public static async createUser(login: string, email: string, password: string): Promise<User> {
         try {
-            const user: User = await User.create({ login, email, password, roleId })
+            const user: User = await User.create({ login, email, password})
 
             return user
         } 

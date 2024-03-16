@@ -25,8 +25,7 @@ export default class ParticipantManager {
 
             const participant: Participant = await new Participant({
                 userId: user.id,
-                chatId: chat.id,
-                roleId: user.roleId
+                chatId: chat.id
             })
 
             return participant

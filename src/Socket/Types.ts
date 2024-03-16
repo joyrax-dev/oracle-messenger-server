@@ -1,4 +1,4 @@
-import Role from "../Database/Models/Role.model"
+import Role from "../Database/Models/Permission.model"
 import User from "../Database/Models/User.model"
 
 export interface UserData {

@@ -6,6 +6,7 @@ class Session extends Model {
     public socketId!: string
     public userId!: number
     public isLogin!: boolean
+    public isAdmin!: boolean
 }
 
 Session.init({
@@ -26,6 +27,11 @@ Session.init({
             // unique: true
         },
         isLogin: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        isAdmin: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false

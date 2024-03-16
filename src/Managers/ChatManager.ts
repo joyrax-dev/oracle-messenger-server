@@ -62,14 +62,12 @@ export default class ChatManager {
 
         await Participant.create({
             userId: firstUser.id,
-            chatId: chat.id,
-            roleId: firstUser.roleId
+            chatId: chat.id
         })
 
         await Participant.create({
             userId: secondUser.id,
-            chatId: chat.id,
-            roleId: secondUser.roleId
+            chatId: chat.id
         })
 
         return chat

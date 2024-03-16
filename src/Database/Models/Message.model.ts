@@ -6,6 +6,7 @@ import Chat from './Chat.model'
 class Message extends Model {
     public id!: number
     public text!: string
+    public readed!: boolean
     public senderId!: number
     public chatId!: number
 }
@@ -19,6 +20,11 @@ Message.init({
         text: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        readed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         },
         senderId: {
             type: DataTypes.INTEGER,

@@ -1,12 +1,13 @@
 import { Model, DataTypes } from 'sequelize'
 import sequelize from '../sequelize'
 
-class Role extends Model {
+class Permission extends Model {
     public id!: number
     public name!: string
+    public affiliation!: string
 }
 
-Role.init({
+Permission.init({
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -16,12 +17,17 @@ Role.init({
             type: DataTypes.STRING,
             allowNull: false,
             unique: true
+        },
+        affiliation: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true
         }
     },
     {
         sequelize,
-        modelName: 'Role'
+        modelName: 'Permission'
     }
 )
 
-export default Role
+export default Permission
